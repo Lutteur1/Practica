@@ -1,0 +1,32 @@
+import math
+
+g = 9.81
+
+v0 = float(input("Введіть початкову швидкість (м/с): "))
+angle_deg = float(input("Введіть кут вильоту (градуси): "))
+
+angle = math.radians(angle_deg)
+
+T = (2 * v0 * math.sin(angle)) / g
+R = (v0 ** 2) * math.sin(2 * angle) / g
+Hmax = (v0 ** 2) * (math.sin(angle) ** 2) / (2 * g)
+
+print("\nРезультати:")
+print("Дальність польоту =", R)
+print("Максимальна висота =", Hmax)
+print("Час польоту =", T)
+
+print("\nВисота по секундах:")
+t = 0
+while t <= int(T):
+    h = v0 * math.sin(angle) * t - 0.5 * g * t * t
+    if h < 0:
+        h = 0
+    print("t =", t, "c -> h =", h)
+    t += 1
+
+if T != int(T):
+    h_last = v0 * math.sin(angle) * T - 0.5 * g * T * T
+    if h_last < 0:
+        h_last = 0
+    print("t =", round(T, 2), "c -> h =", h_last)
