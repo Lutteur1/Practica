@@ -1,0 +1,26 @@
+import math
+
+class Rectangle:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def area(self):
+        return self.a * self.b
+
+class Circle:
+    def __init__(self, r):
+        self.r = r
+
+    def area(self):
+        return math.pi * self.r * self.r
+
+a = float(input("Введіть сторону прямокутника a: "))
+b = float(input("Введіть сторону прямокутника b: "))
+r = float(input("Введіть радіус кола: "))
+
+rect = Rectangle(a, b)
+circ = Circle(r)
+
+print("Площа прямокутника =", rect.area())
+print("Площа кола =", circ.area())
