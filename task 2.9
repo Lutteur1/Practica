@@ -1,0 +1,95 @@
+from abc import ABC, abstractmethod
+
+class Item(ABC):
+    def __init__(self, title):
+        self.title = title
+
+    @abstractmethod
+    def info(self):
+        pass
+
+
+class Book(Item):
+    def __init__(self, title, author):
+        super().__init__(title)
+        self.author = author
+
+    def info(self):
+        return "Книга: " + self.title + " (" + self.author + ")"
+
+
+class Magazine(Item):
+    def __init__(self, title, issue):
+        super().__init__(title)
+        self.issue = issue
+
+    def info(self):
+        return "Журнал: " + self.title + ", №" + str(self.issue)
+
+
+class Reader:
+    def __init__(self, name):
+        self.name = name
+        self.__borrowed = []
+
+    def borrow(self, item):
+        self.__borrowed.append(item)
+        print(self.name, "взяв:", item.info())
+
+    def return_item(self, title):
+        for i in range(len(self.__borrowed)):
+            if self.__borrowed[i].title == title:
+                item = self.__borrowed.pop(i)
+                print(self.name, "повернув:", item.info())
+                return
+        print(self.name, "не має такого видання")
+
+    def show_borrowed(self):
+        print("У", self.name, "зараз:")
+        if len(self.__borrowed) == 0:
+            print("Нічого")
+        else:
+            for item in self.__borrowed:
+                print("-", item.info())
+
+
+class Library:
+    def __init__(self):
+        self.__items = []
+
+    def add_item(self, item):
+        self.__items.append(item)
+
+    def show_items(self):
+        print("Каталог бібліотеки:")
+        for item in self.__items:
+            print("-", item.info())
+
+    def give(self, reader, title):
+        for i in range(len(self.__items)):
+            if self.__items[i].title == title:
+                item = self.__items.pop(i)
+                reader.borrow(item)
+                return
+        print("Немає в наявності:", title)
+
+    def take_back(self, item):
+        self.__items.append(item)
+
+
+library = Library()
+library.add_item(Book("Python Basics", "A. Ivanov"))
+library.add_item(Book("Algorithms", "O. Petrova"))
+library.add_item(Magazine("Tech Today", 5))
+
+library.show_items()
+
+reader = Reader("Andrii")
+
+library.give(reader, "Python Basics")
+library.give(reader, "Tech Today")
+
+reader.show_borrowed()
+
+reader.return_item("Python Basics")
+reader.show_borrowed()
