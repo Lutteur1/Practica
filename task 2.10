@@ -1,0 +1,34 @@
+class Car:
+    def __init__(self, brand, year, mileage):
+        self.brand = brand
+        self.year = year
+        self.mileage = mileage
+
+    @property
+    def mileage(self):
+        return self.__mileage
+
+    @mileage.setter
+    def mileage(self, value):
+        if value < 0:
+            print("Пробіг не може бути від’ємним")
+            return
+        self.__mileage = value
+
+    def drive(self, km):
+        if km < 0:
+            print("Не можна їхати на від’ємну відстань")
+            return
+        self.mileage = self.mileage + km
+
+    def info(self):
+        print(self.brand, self.year, self.mileage)
+
+car = Car("Toyota", 2018, 50000)
+car.info()
+
+car.mileage = -10
+car.drive(100)
+car.drive(-5)
+
+car.info()
