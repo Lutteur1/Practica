@@ -1,0 +1,19 @@
+class Student:
+    def __init__(self, name, group, avg_mark):
+        self.name = name
+        self.group = group
+        self.avg_mark = avg_mark
+
+    def show_info(self):
+        print("Ім'я:", self.name)
+        print("Група:", self.group)
+        print("Середній бал:", self.avg_mark)
+        print()
+
+student1 = Student("Ivan", "CS-21", 85)
+student2 = Student("Oleh", "CS-21", 78)
+student3 = Student("Anna", "CS-22", 92)
+
+student1.show_info()
+student2.show_info()
+student3.show_info()
