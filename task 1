@@ -1,0 +1,27 @@
+import this
+
+a = 10
+b = 3
+x = 2.5
+y = 4.0
+s = "Python"
+
+print(a + b)
+print(a - b)
+print(a * b)
+print(a / b)
+
+print(x + y)
+print(x - y)
+print(x * y)
+print(x / y)
+
+print(s + " language")
+
+n1 = int(input("Введіть число: "))
+n2 = float(input("Введіть число: "))
+
+print(n1 + n2)
+print(n1 - n2)
+print(n1 * n2)
+print(n1 / n2)
