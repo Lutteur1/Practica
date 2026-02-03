@@ -1,0 +1,13 @@
+number = int(input("Введіть число: "))
+
+result = ""
+
+if number == 0:
+    result = "0"
+else:
+    while number > 0:
+        digit = number % 10
+        result = chr(48 + digit) + result
+        number = number // 10
+
+print("Рядкове представлення:", result)
