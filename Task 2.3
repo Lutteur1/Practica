@@ -1,0 +1,30 @@
+students = {}
+
+n = int(input("Введіть кількість студентів: "))
+
+for i in range(n):
+    name = input("Ім'я студента: ")
+    marks = []
+
+    for j in range(5):
+        mark = int(input("Оцінка: "))
+        marks.append(mark)
+
+    students[name] = marks
+
+avg_dict = {}
+all_marks = []
+
+for name in students:
+    avg = sum(students[name]) / len(students[name])
+    avg_dict[name] = avg
+    all_marks.extend(students[name])
+
+unique_marks = set(all_marks)
+
+print("\nСередній бал кожного студента:")
+for name in avg_dict:
+    print(name, ":", avg_dict[name])
+
+print("\nУнікальні оцінки:")
+print(unique_marks)
