@@ -1,0 +1,74 @@
+import tkinter as tk
+from tkinter import filedialog, messagebox
+
+root = tk.Tk()
+root.title("Блокнот")
+root.geometry("600x400")
+
+text_area = tk.Text(root, wrap="word")
+text_area.pack(fill="both", expand=True)
+
+current_file = None
+is_modified = False
+
+def on_text_change(event=None):
+    global is_modified
+    is_modified = True
+
+text_area.bind("<<Modified>>", lambda e: (text_area.edit_modified(False), on_text_change()))
+
+def open_file():
+    global current_file, is_modified
+    file_path = filedialog.askopenfilename(
+        filetypes=[("Текстові файли", "*.txt"), ("Усі файли", "*.*")]
+    )
+    if file_path:
+        with open(file_path, "r", encoding="utf-8") as file:
+            text_area.delete(1.0, tk.END)
+            text_area.insert(tk.END, file.read())
+        current_file = file_path
+        is_modified = False
+        root.title(f"Блокнот — {current_file}")
+
+def save_file():
+    global current_file, is_modified
+    if current_file is None:
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Текстові файли", "*.txt"), ("Усі файли", "*.*")]
+        )
+        if not file_path:
+            return
+        current_file = file_path
+
+    with open(current_file, "w", encoding="utf-8") as file:
+        file.write(text_area.get(1.0, tk.END))
+    is_modified = False
+    root.title(f"Блокнот — {current_file}")
+
+def exit_app():
+    if is_modified:
+        answer = messagebox.askyesnocancel(
+            "Попередження",
+            "Файл не збережено. Зберегти перед виходом?"
+        )
+        if answer is None:
+            return
+        if answer:
+            save_file()
+    root.destroy()
+
+menu = tk.Menu(root)
+root.config(menu=menu)
+
+file_menu = tk.Menu(menu, tearoff=0)
+menu.add_cascade(label="Файл", menu=file_menu)
+
+file_menu.add_command(label="Відкрити", command=open_file)
+file_menu.add_command(label="Зберегти", command=save_file)
+file_menu.add_separator()
+file_menu.add_command(label="Вийти", command=exit_app)
+
+root.protocol("WM_DELETE_WINDOW", exit_app)
+
+root.mainloop()
