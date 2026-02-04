@@ -1,0 +1,116 @@
+import json
+import os
+import tkinter as tk
+from tkinter import ttk, colorchooser, messagebox
+
+SETTINGS_FILE = "settings.json"
+DEFAULT_BG = "#f0f0f0"
+
+
+def load_settings():
+    if not os.path.exists(SETTINGS_FILE):
+        return {"bg_color": DEFAULT_BG}
+    try:
+        with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        bg = data.get("bg_color", DEFAULT_BG)
+        if not isinstance(bg, str) or not bg.startswith("#") or len(bg) not in (4, 7):
+            bg = DEFAULT_BG
+        return {"bg_color": bg}
+    except Exception:
+        return {"bg_color": DEFAULT_BG}
+
+
+def save_settings(bg_color):
+    try:
+        with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+            json.dump({"bg_color": bg_color}, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        messagebox.showwarning("Попередження", f"Не вдалося зберегти налаштування:\n{e}")
+
+
+def set_background(color):
+    root.configure(bg=color)
+    for frame in (tab_main, tab_settings, tab_about):
+        frame.configure(bg=color)
+    for w in bg_widgets:
+        try:
+            w.configure(bg=color)
+        except Exception:
+            pass
+
+
+def choose_color():
+    chosen = colorchooser.askcolor(title="Виберіть колір фону", initialcolor=current_bg.get())
+    if chosen and chosen[1]:
+        current_bg.set(chosen[1])
+        set_background(current_bg.get())
+        save_settings(current_bg.get())
+        color_value_label.config(text=f"Поточний колір: {current_bg.get()}")
+
+
+def show_form_data():
+    name = name_entry.get().strip()
+    age = age_entry.get().strip()
+
+    if not name or not age:
+        result_label.config(text="Заповніть, будь ласка, всі поля.")
+        return
+
+    if not age.isdigit():
+        result_label.config(text="Вік має бути числом.")
+        return
+
+    result_label.config(text=f"Введені дані:\nІм'я: {name}\nВік: {age}")
+
+
+settings = load_settings()
+
+root = tk.Tk()
+root.title("Програма з вкладками")
+root.geometry("640x420")
+root.resizable(False, False)
+
+current_bg = tk.StringVar(value=settings["bg_color"])
+
+notebook = ttk.Notebook(root)
+notebook.pack(fill="both", expand=True, padx=10, pady=10)
+
+tab_main = tk.Frame(notebook)
+tab_settings = tk.Frame(notebook)
+tab_about = tk.Frame(notebook)
+
+notebook.add(tab_main, text="Головна")
+notebook.add(tab_settings, text="Налаштування")
+notebook.add(tab_about, text="Про програму")
+
+bg_widgets = []
+
+title_main = tk.Label(tab_main, text="Форма введення даних", font=("Arial", 14, "bold"))
+title_main.grid(row=0, column=0, columnspan=2, padx=10, pady=(15, 10), sticky="w")
+bg_widgets.append(title_main)
+
+tk.Label(tab_main, text="Ім'я:").grid(row=1, column=0, padx=10, pady=8, sticky="e")
+label_name = tab_main.grid_slaves(row=1, column=0)[0]
+bg_widgets.append(label_name)
+
+name_entry = tk.Entry(tab_main, width=28)
+name_entry.grid(row=1, column=1, padx=10, pady=8, sticky="w")
+
+tk.Label(tab_main, text="Вік:").grid(row=2, column=0, padx=10, pady=8, sticky="e")
+label_age = tab_main.grid_slaves(row=2, column=0)[0]
+bg_widgets.append(label_age)
+
+age_entry = tk.Entry(tab_main, width=28)
+age_entry.grid(row=2, column=1, padx=10, pady=8, sticky="w")
+
+btn_show = tk.Button(tab_main, text="Показати", width=16, command=show_form_data)
+btn_show.grid(row=3, column=1, padx=10, pady=10, sticky="w")
+
+result_label = tk.Label(tab_main, text="", justify="left", font=("Arial", 12))
+result_label.grid(row=4, column=0, columnspan=2, padx=10, pady=15, sticky="w")
+bg_widgets.append(result_label)
+
+title_settings = tk.Label(tab_settings, text="Налаштування", font=("Arial", 14, "bold"))
+title_settings.grid(row=0, column=0, padx=10, pady=(15, 10), sticky="w")
+bg_widgets.append(title_sett
