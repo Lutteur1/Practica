@@ -1,0 +1,36 @@
+import urllib.request
+import json
+import ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context
+
+get_url = "https://jsonplaceholder.typicode.com/posts/1"
+
+with urllib.request.urlopen(get_url) as response:
+    print("GET")
+    print("Status:", response.status)
+    print("Headers:", response.headers)
+    print("Body:", response.read().decode())
+
+print("\n" + "-" * 40 + "\n")
+
+post_url = "https://jsonplaceholder.typicode.com/posts"
+
+data = json.dumps({
+    "title": "Hello",
+    "body": "Test message",
+    "userId": 1
+}).encode("utf-8")
+
+req = urllib.request.Request(
+    post_url,
+    data=data,
+    headers={"Content-Type": "application/json"},
+    method="POST"
+)
+
+with urllib.request.urlopen(req) as response:
+    print("POST")
+    print("Status:", response.status)
+    print("Headers:", response.headers)
+    print("Body:", response.read().decode())
