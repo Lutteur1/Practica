@@ -1,0 +1,109 @@
+import os
+import base64
+import hashlib
+
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes, serialization
+
+
+def b64(data: bytes) -> str:
+    return base64.b64encode(data).decode("utf-8")
+
+
+def sha256_hash(text: str) -> str:
+   
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def aes_encrypt_decrypt(message: bytes) -> tuple[bytes, bytes, bytes]:
+   
+    key = AESGCM.generate_key(bit_length=256)
+    aesgcm = AESGCM(key)
+
+    nonce = os.urandom(12)
+    ciphertext = aesgcm.encrypt(nonce, message, associated_data=None)
+    plaintext = aesgcm.decrypt(nonce, ciphertext, associated_data=None)
+
+    return key, nonce, ciphertext, plaintext
+
+
+def rsa_keys_and_signature(message: bytes) -> tuple[bytes, bytes, bytes, bool]:
+   
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_key = private_key.public_key()
+
+    signature = private_key.sign(
+        message,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH,
+        ),
+        hashes.SHA256(),
+    )
+
+   
+    try:
+        public_key.verify(
+            signature,
+            message,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH,
+            ),
+            hashes.SHA256(),
+        )
+        ok = True
+    except Exception:
+        ok = False
+
+   
+    priv_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+    pub_pem = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+
+    return priv_pem, pub_pem, signature, ok
+
+
+def main():
+    text = "Hello! Це повідомлення для демонстрації."
+    message = text.encode("utf-8")
+
+    print("=== 1) SHA-256 (гешування) ===")
+    h = sha256_hash(text)
+    print("Повідомлення:", text)
+    print("SHA-256:", h)
+    print("Пояснення: хеш не можна 'розшифрувати назад' у текст — це одностороння функція.\n")
+
+    print("=== 2) AES-GCM (симетричне шифрування) ===")
+    key, nonce, ciphertext, plaintext = aes_encrypt_decrypt(message)
+    print("Ключ (base64):", b64(key))
+    print("Nonce (base64):", b64(nonce))
+    print("Шифртекст (base64):", b64(ciphertext))
+    print("Розшифровано:", plaintext.decode("utf-8"))
+    print("Пояснення: шифрування можна повернути назад (розшифрувати), якщо є ключ.\n")
+
+    print("=== 3) RSA + цифровий підпис ===")
+    priv_pem, pub_pem, signature, ok = rsa_keys_and_signature(message)
+    print("Підпис (base64):", b64(signature))
+    print("Перевірка підпису:", "OK ✅" if ok else "FAIL ❌")
+
+    print("\n(Ключі RSA у форматі PEM — обрізано для виводу)")
+    print("Public key (перші 100 символів):")
+    print(pub_pem.decode("utf-8")[:100] + "...")
+    print("Private key (перші 100 символів):")
+    print(priv_pem.decode("utf-8")[:100] + "...")
+
+    print("\n=== Різниця між гешуванням і шифруванням (коротко) ===")
+    print("- Гешування (SHA-256): одностороннє, для перевірки цілісності/паролів, назад не відновлюється.")
+    print("- Шифрування (AES): двостороннє, можна розшифрувати при наявності ключа.")
+
+
+if __name__ == "__main__":
+    main()
